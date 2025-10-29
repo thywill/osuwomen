@@ -1,4 +1,4 @@
-// ASCII zoom with morphing portraits + OSU “O”: O filled with symbols; outside shows large cycling words. Names are rarer than words; “YOU” appears occasionally but larger.
+
 
 let asciiChars = "@#MW8BNX&%$0OHnxsSEC+*=\\/|()[]{}-:;,'\"` .";
 
@@ -6,10 +6,10 @@ let playing = true;
 let frameHold = 14;
 let holdCounter = 0;
 
-let baseBlock = 10;
-let maxBlock = 160;
-let increments = [2, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24];
-let baseDwellSteps = 30;
+let baseBlock = 5; // Scaled from 10
+let maxBlock = 80; // Scaled from 160
+let increments = [1, 1, 2, 2, 3, 3, 4, 5, 6, 8, 10, 12]; // Scaled and rounded
+let baseDwellSteps = 10; // Very fast transition (from 30, then 15)
 
 let sequence = [];
 let seqIndex = 0;
@@ -20,7 +20,7 @@ const minAlpha = 90;
 const maxAlpha = 255;
 const invert = false;
 
-let w = 1200, h = 1157;
+let w = 600, h = 578; // New, smaller dimensions
 let glyphTable = [];
 
 let IMAGES = [
@@ -50,8 +50,8 @@ const TERMS = [
 const NAME_SET = new Set([...NAMES_FIRST, ...NAMES_LAST]);
 const TERM_SET = new Set(TERMS);
 
-let logoThreshold = 200;
-let logoBlock = 8;
+let logoThreshold = 200; 
+let logoBlock = 4; // Scaled from 8
 let wordCycleSteps = 12;
 
 let logoMask = null;
@@ -70,7 +70,7 @@ function setup() {
   glyphTable = Array.from(asciiChars);
 
   for (let i = 0; i < imgs.length; i++) {
-    imgs[i].resize(w, h);
+    imgs[i].resize(w, h); // Resize to new w, h
     imgs[i].loadPixels();
     lumIntegrals[i] = buildIntegralLuminance(imgs[i]);
   }
@@ -114,6 +114,7 @@ function renderAsciiBlend(blockSize, idxA, idxB, t) {
   const IA = lumIntegrals[idxA];
   const IB = lumIntegrals[idxB];
 
+  // Draw main ASCII art
   for (let y = 0; y < h; y += blockSize) {
     for (let x = 0; x < w; x += blockSize) {
       const x2 = min(x + blockSize, w), y2 = min(y + blockSize, h);
@@ -137,6 +138,47 @@ function renderAsciiBlend(blockSize, idxA, idxB, t) {
       text(glyph, x + (x2 - x) / 2, y + (y2 - y) / 2);
     }
   }
+
+  // --- Signature/Credit Line with Background ---
+  if (currentImageIndex === 0) {
+    // Determine visibility based on transition (morphT)
+    const fadeAlpha = map(t, 0.8, 1.0, 255, 0, true); 
+
+    push();
+    textAlign(LEFT, BOTTOM);
+    textFont('monospace');
+    textSize(8); 
+    
+    // Concisely shortened text
+    const line1 = 'Self Portrait (1963) Reimagined by Thywill O.';
+    const line2 = 'Comp. Design Course | Dr. G. Robillard';
+    
+    // Position and padding variables
+    const margin = 8;
+    const padding = 3;
+    const lineHeight = 9.6; // Estimated based on 8pt size (1.2 * 8)
+    
+    // Calculate required width and height for the background box
+    const textWidth1 = textWidth(line1);
+    const textWidth2 = textWidth(line2);
+    const boxWidth = max(textWidth1, textWidth2) + 2 * padding;
+    const boxHeight = 2 * lineHeight + 2 * padding; 
+    
+    const boxX = margin - padding;
+    const boxY = h - boxHeight - margin + padding; 
+
+    // 1. Draw Background Rectangle (Matching the canvas background color: 228, 218, 209)
+    noStroke();
+    fill(228, 218, 209, fadeAlpha);
+    rect(boxX, boxY, boxWidth, boxHeight, 3); // Draw box with slight rounded corners
+
+    // 2. Draw Text
+    fill(35, 6, 3, fadeAlpha); // Dark text color
+    text(line1, margin, h - lineHeight - margin); 
+    text(line2, margin, h - margin);           
+    pop();
+  }
+  // ----------------------------------------------
 }
 
 function renderLogoOutsideWords(blockSize, phase) {
@@ -149,12 +191,13 @@ function renderLogoOutsideWords(blockSize, phase) {
   const rows = logoRows;
   const occ = Array.from({ length: cols }, () => new Array(rows).fill(false));
 
+  // Scaled dimensions for the word boxes (0.5 factor applied to original dimensions)
   const bigBoxes = [
-    {cw: 18, ch: 6},
-    {cw: 16, ch: 6},
-    {cw: 14, ch: 5},
-    {cw: 12, ch: 4},
-    {cw: 10, ch: 4}
+    {cw: 9, ch: 3}, // Scaled from {cw: 18, ch: 6}
+    {cw: 8, ch: 3}, // Scaled from {cw: 16, ch: 6}
+    {cw: 7, ch: 2}, // Scaled from {cw: 14, ch: 5}
+    {cw: 6, ch: 2}, // Scaled from {cw: 12, ch: 4}
+    {cw: 5, ch: 2}  // Scaled from {cw: 10, ch: 4}
   ];
 
   for (let by = 0; by < rows; by++) {
