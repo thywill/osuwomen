@@ -149,9 +149,6 @@ function renderAsciiBlend(blockSize, idxA, idxB, t) {
     textFont('monospace');
     textSize(8); 
     
-    // Concisely shortened text
-    const line1 = 'Self Portrait (1963) Reimagined by Thywill O.';
-    const line2 = 'Comp. Design Course | Dr. G. Robillard';
     
     // Position and padding variables
     const margin = 8;
