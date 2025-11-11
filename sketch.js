@@ -1,5 +1,3 @@
-
-
 let asciiChars = "@#MW8BNX&%$0OHnxsSEC+*=\\/|()[]{}-:;,'\"` .";
 
 let playing = true;
@@ -70,7 +68,7 @@ function setup() {
   glyphTable = Array.from(asciiChars);
 
   for (let i = 0; i < imgs.length; i++) {
-    imgs[i].resize(w, h); // Resize to new w, h
+    imgs[i].resize(w, h);
     imgs[i].loadPixels();
     lumIntegrals[i] = buildIntegralLuminance(imgs[i]);
   }
@@ -140,41 +138,7 @@ function renderAsciiBlend(blockSize, idxA, idxB, t) {
   }
 
   // --- Signature/Credit Line with Background ---
-  if (currentImageIndex === 0) {
-    // Determine visibility based on transition (morphT)
-    const fadeAlpha = map(t, 0.8, 1.0, 255, 0, true); 
-
-    push();
-    textAlign(LEFT, BOTTOM);
-    textFont('monospace');
-    textSize(8); 
-    
-    
-    // Position and padding variables
-    const margin = 8;
-    const padding = 3;
-    const lineHeight = 9.6; // Estimated based on 8pt size (1.2 * 8)
-    
-    // Calculate required width and height for the background box
-    const textWidth1 = textWidth(line1);
-    const textWidth2 = textWidth(line2);
-    const boxWidth = max(textWidth1, textWidth2) + 2 * padding;
-    const boxHeight = 2 * lineHeight + 2 * padding; 
-    
-    const boxX = margin - padding;
-    const boxY = h - boxHeight - margin + padding; 
-
-    // 1. Draw Background Rectangle (Matching the canvas background color: 228, 218, 209)
-    noStroke();
-    fill(228, 218, 209, fadeAlpha);
-    rect(boxX, boxY, boxWidth, boxHeight, 3); // Draw box with slight rounded corners
-
-    // 2. Draw Text
-    fill(35, 6, 3, fadeAlpha); // Dark text color
-    text(line1, margin, h - lineHeight - margin); 
-    text(line2, margin, h - margin);           
-    pop();
-  }
+  // (Removed — no text or box will appear)
   // ----------------------------------------------
 }
 
@@ -188,13 +152,12 @@ function renderLogoOutsideWords(blockSize, phase) {
   const rows = logoRows;
   const occ = Array.from({ length: cols }, () => new Array(rows).fill(false));
 
-  // Scaled dimensions for the word boxes (0.5 factor applied to original dimensions)
   const bigBoxes = [
-    {cw: 9, ch: 3}, // Scaled from {cw: 18, ch: 6}
-    {cw: 8, ch: 3}, // Scaled from {cw: 16, ch: 6}
-    {cw: 7, ch: 2}, // Scaled from {cw: 14, ch: 5}
-    {cw: 6, ch: 2}, // Scaled from {cw: 12, ch: 4}
-    {cw: 5, ch: 2}  // Scaled from {cw: 10, ch: 4}
+    {cw: 9, ch: 3},
+    {cw: 8, ch: 3},
+    {cw: 7, ch: 2},
+    {cw: 6, ch: 2},
+    {cw: 5, ch: 2}
   ];
 
   for (let by = 0; by < rows; by++) {
@@ -225,7 +188,8 @@ function renderLogoOutsideWords(blockSize, phase) {
           fill(35, 6, 3, 245);
           text(word, px + pw / 2, py + ph / 2);
 
-          for (let yy = by; yy < by + ch; yy++) for (let xx = bx; xx < bx + cw; xx++) occ[xx][yy] = true;
+          for (let yy = by; yy < by + ch; yy++) 
+            for (let xx = bx; xx < bx + cw; xx++) occ[xx][yy] = true;
           break;
         }
       }
